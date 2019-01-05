@@ -8,6 +8,67 @@ else {
     var existing = [];
 }
 
+function showGifs (item, count){
+    var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
+        item + "&api_key=HWEgL4UenLdbS2M82D1rNQJpXwdGanX7&limit=10&offset="+ count;
+
+    $.ajax({
+        url: queryURL,
+        method: "GET"
+    })
+        // After the data comes back from the API
+        .then(function(response) {
+        // Storing an array of results in the results variable
+        var results = response.data;
+
+        for (var i=0;i<results.length;i++){
+            for (var i = 0; i < results.length; i++) {
+
+                // Creating a div for the gif
+                var gifDiv = $("<div class='card'>");
+    
+                // Storing the result item's rating
+                var rating = results[i].rating.toUpperCase();
+    
+                // Storing the result item's rating
+                var title = results[i].title;
+    
+                // Creating a paragraph tag with the result item's rating
+                var p = $("<p class='rating'>").text("Rating: " + rating);
+    
+                // Make sure the title fits on the card.
+                var shortText = jQuery.trim(title).substring(0, 20).split(" ").slice(0, -1).join(" ") + "...";
+    
+                // Grab the title and make sure if fits in card.
+                var h = $("<h3 class='title'>").text(shortText);
+    
+                // Creating an image tag
+                var gifImage = $("<img>");
+    
+                // Creating an download button
+                var downLoad = $("<a href=" + results[i].images.fixed_width.url + " download='' target='_blank' class='downloadlink'> Download </a>");
+    
+                // Giving the image tag a src attribute of a property pulled off the
+                // result item
+                gifImage.attr("src", results[i].images.fixed_width_still.url);
+                gifImage.attr("data-still", results[i].images.fixed_width_still.url);
+                gifImage.attr("data-animate", results[i].images.fixed_width.url);
+                gifImage.attr("data-state", "still");
+                gifImage.addClass("gif");
+    
+                // Appending the paragraph and gifImage we created to the "gifDiv" div we created
+                gifDiv.append(h);
+                gifDiv.append(p);
+                gifDiv.append(gifImage);
+                gifDiv.append(downLoad);
+    
+                // Prepending the gifDiv to the "#gifs-appear-here" div in the HTML
+                $("#gifs-appear-here").prepend(gifDiv);
+            }
+        }
+})
+};
+
 // Event listener for all button elements
 function alertTopicName() {
     // In this case, the "this" keyword refers to the button that was clicked
@@ -19,7 +80,6 @@ function alertTopicName() {
     // Constructing a URL to search Giphy for the name of the person who said the quote
     var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
         topic + "&api_key=HWEgL4UenLdbS2M82D1rNQJpXwdGanX7&limit=10&offset=" + clickCounter;
-
 
     clickCounter = clickCounter + 10;
 
@@ -52,7 +112,7 @@ function alertTopicName() {
             var p = $("<p class='rating'>").text("Rating: " + rating);
 
             // Make sure the title fits on the card.
-            var shortText = jQuery.trim(title).substring(0, 15).split(" ").slice(0, -1).join(" ") + "...";
+            var shortText = jQuery.trim(title).substring(0, 20).split(" ").slice(0, -1).join(" ") + "...";
 
             // Grab the title and make sure if fits in card.
             var h = $("<h3 class='title'>").text(shortText);
@@ -106,7 +166,7 @@ function renderButtons() {
 
   // Deleting the topics prior to adding new topics
   // (this is necessary otherwise we will have repeat buttons)
-  $("#buttons-view").empty();
+  $("#buttons").empty();
   
   // Looping through the array of topics
   for (var i = 0; i < topics.length; i++) {
@@ -125,7 +185,7 @@ function renderButtons() {
     // Providing the initial button text
     button.text(topics[i]);
     // Adding the button to the HTML
-    $("#buttons-view").append(button);
+    $("#buttons").append(button);
   }
 
   if (existing) {
@@ -145,7 +205,7 @@ function renderButtons() {
         // Providing the initial button text
         button.text(existing[i]);
         // Adding the button to the HTML
-        $("#buttons-view").append(button);
+        $("#buttons").append(button);
     }
   }
 }
@@ -155,8 +215,9 @@ $("#add-topic").on("click", function(event) {
   // Preventing the buttons default behavior when clicked (which is submitting a form)
   event.preventDefault();
   // This line grabs the input from the textbox
-  var topic = $("#topic-input").val().trim();
-
+  var topic = $("#search").val().trim();
+  console.log(topic);
+  showGifs(topic,10);
 
     // only add a topic if there is something there. This avoids an empty box if they just press enter.
     if (topic.length >= 1){
@@ -165,9 +226,10 @@ $("#add-topic").on("click", function(event) {
 
     // Save back to localStorage
     localStorage.setItem('topics', existing.toString());
+    
     };
 
-  $('#topic-input').val('');
+  $('#search').val('');
   // Calling renderButtons which handles the processing of our topic array
   renderButtons();
 
@@ -178,13 +240,13 @@ $(document).on("click", ".topic", alertTopicName);
 $(document).on("click", "#clear-all", function() {
     localStorage.removeItem('topics');
     existing = [];
-    $('#topic-input').val('');
+    $('#search').val('');
     $("#gifs-appear-here").clear();
     renderButtons();
 });
 
 $(document).on("click", "#clear-gifs", function() {
-    $('#topic-input').val('');
+    $('#search').val('');
     $("#gifs-appear-here").clear();
     renderButtons();
 });
