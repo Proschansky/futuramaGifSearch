@@ -1,7 +1,5 @@
 <a href="https://proschansky.github.io/futuramaGifSearch"><img src="assets/images/Futurama.jpg" title="Futurama" alt="Futurama"></a>
 
-***INSERT GRAPHIC HERE (include hyperlink in image)***
-
 # Futurama Gif Search
 
 > This project generates GIFs when buttons named after Futurama characters are clicked. The user can also generate their own GIFs by     typing in a search. This search will be saved as a button to generate GIF's later as well.
